@@ -7,6 +7,7 @@ The Weather App is a Spring Boot application that provides weather information b
 - [Prerequisites](#prerequisites)
 - [Configuration](#configuration)
 - [APIs](#apis)
+- [POSTMAN Collection](#postman-collection)
 - [How to Start](#how-to-start)
 - [Usage](#usage)
 - [Contributing](#contributing)
