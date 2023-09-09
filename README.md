@@ -1,6 +1,6 @@
 # Weather App
 
-The Weather App is a Spring Boot application that provides weather information based on client credentials. It allows you to generate credentials, access weather data, and protect endpoints using client IDs and client secrets.
+The Weather App is a Spring Boot application that provides weather information based on client credentials. It allows you to generate credentials, access weather data, and protect endpoints using client IDs and client secrets (or) JWT.
 
 ## Table of Contents
 
@@ -48,25 +48,46 @@ Example Response:
 }
 ```
 
-### 2. Weather Summary Data
+### 2. Generate New JWT
+
+Generates new JWT that can be used to access weather data.
+
+- **Endpoint:** `/api/weather/get-new-jwt`
+- **HTTP Method:** GET
+- **Response:** JSON containing JWT.
+
+Example Response:
+
+```json
+{
+  "jwt":"eyJhbGciOiJIbWFjU0hBMjU2IiwidHlwIjoiSldUIn0=.eyJleHAiOjE2OTQyNDgzNTM2ODksImFsbG93ZWQiOiJ0cnVlIn0=.JQ_vv71z77-977-9Bs-E77-9Kj5XFu-_vU4kXu-_ve-_ve-_vUfvv73vv73vv73vv710LnDvv73vv70="
+}
+```
+
+### 3. Weather Summary Data
 
 Retrieve weather summary data using client credentials.
 
 - **Endpoint:** `/api/weather/summary`
 - **HTTP Method:** GET
-- **Request Headers:** Include `client-id` and `client-secret` headers with valid client credentials.
+- **Request Headers:** Include `client-id` and `client-secret` headers with valid client credentials (or) include `jwt` header with valid JWT.
 - **Response:** JSON containing weather summary information.
 
-### 3. Weather Hourly Data
+### 4. Weather Hourly Data
 
 Retrieve weather hourly data using client credentials.
 
 - **Endpoint:** `/api/weather/hourly`
 - **HTTP Method:** GET
-- **Request Headers:** Include `c---
-
-Feel free to modify and expand this README.md to suit the specific details of your project. This template provides a starting point for documenting your Spring Boot application effectively.lient-id` and `client-secret` headers with valid client credentials.
+- **Request Headers:** Include `client-id` and `client-secret` headers with valid client credentials (or) include `jwt` header with valid JWT.
 - **Response:** JSON containing weather information.
+
+## POSTMAN Collection
+
+This Postman collection is your go-to testing toolkit for the DICE Weather App's APIs. The DICE Weather App, powered by Spring Boot, provides accurate and up-to-date weather information to users, and it offers two robust authentication methods: client IDs and client secrets, as well as JWT (JSON Web Tokens).
+
+**Documentation:** For detailed API documentation and usage instructions, refer to the [DICE Weather App Documentation](https://www.postman.com/crimson-comet-408538/workspace/dice-weather-app/overview).
+
 
 ## How to Start
 
