@@ -1,6 +1,7 @@
 package com.dice.weatherApp.filter;
 
 import com.dice.weatherApp.service.CredentialService;
+import com.dice.weatherApp.service.JwtService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.Ordered;
@@ -26,6 +27,7 @@ public class WeatherFilter implements Filter {
 
     final
     CredentialService clientService;
+    final JwtService jwtService;
     final AntPathMatcher antPathMatcher;
 
     private static final Logger logger = LoggerFactory.getLogger(WeatherFilter.class);
@@ -34,8 +36,10 @@ public class WeatherFilter implements Filter {
 
     public WeatherFilter(CredentialService clientService) {
         excludedUrls.add("/api/weather/get-new-credentials");
+        excludedUrls.add("/api/weather/get-new-jwt");
         antPathMatcher = new AntPathMatcher();
         this.clientService = clientService;
+        this.jwtService = new JwtService();
     }
 
 
@@ -51,19 +55,40 @@ public class WeatherFilter implements Filter {
 
         String clientId = httpRequest.getHeader("client-id");
         String clientSecret = httpRequest.getHeader("client-secret");
+        String authorization = httpRequest.getHeader("Authorization");
 
-        try {
-            if (isExcluded ||
-                    (clientId != null && clientSecret != null &&
-                    clientService.validateAuthentication(clientId, clientSecret))) {
-                chain.doFilter(request, response);
-            } else {
-                ((HttpServletResponse) response).sendError(HttpStatus.UNAUTHORIZED.value(), "Invalid credentials");
-            }
-        } catch (NoSuchAlgorithmException e) {
-            logger.debug("NoSuchAlgorithmException", e);
-            ((HttpServletResponse) response).sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Internal Error");
+        if (isExcluded){
+            chain.doFilter(request, response);
         }
+        else if (authorization != null && authorization.startsWith("Bearer ")) {
+            String jwt = authorization.substring(7);
+            try {
+                if (jwtService.verifyJwt(jwt)) {
+                    chain.doFilter(request, response);
+                } else {
+                    ((HttpServletResponse) response).sendError(HttpStatus.UNAUTHORIZED.value(), "Invalid credentials");
+                }
+            } catch (Exception e) {
+                logger.debug("Exception", e);
+                ((HttpServletResponse) response).sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Internal Error");
+            }
+            return;
+        } else if (clientId != null && clientSecret != null ) {
+                try {
+                    if (clientService.validateAuthentication(clientId, clientSecret)) {
+                        chain.doFilter(request, response);
+                    } else {
+                        ((HttpServletResponse) response).sendError(HttpStatus.UNAUTHORIZED.value(), "Invalid credentials");
+                    }
+                } catch (NoSuchAlgorithmException e) {
+                    logger.debug("NoSuchAlgorithmException", e);
+                    ((HttpServletResponse) response).sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Internal Error");
+                }
+
+        } else {
+            ((HttpServletResponse) response).sendError(HttpStatus.UNAUTHORIZED.value(), "Invalid credentials");
+        }
+
 
 
     }
